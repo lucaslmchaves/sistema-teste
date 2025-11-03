@@ -1,0 +1,6 @@
+@sistema_teste_dev_gregpay_HostAddress = http://localhost:5270
+
+GET {{sistema_teste_dev_gregpay_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
