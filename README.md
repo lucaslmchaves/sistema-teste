@@ -92,14 +92,3 @@ A API gerencia um CRUD de **Funcionários** e seus **Filhos**:
   * `POST /api/funcionarios/{id}/filhos`: Adiciona um novo filho a um funcionário.
   * `PUT /api/filhos/{filhoId}`: Atualiza um filho existente.
   * `DELETE /api/filhos/{filhoId}`: Exclui um filho.
-
-## 📬 Instruções de Envio do Teste
-
-Conforme a especificação:
-
-1.  **Script do Banco:** Gere o script de criação do banco e salve-o na pasta `/database/` (a pasta está vazia por padrão).
-    ```bash
-    # Rode este comando de dentro da pasta /backend
-    dotnet ef migrations script -i -o ../database/script_criacao.sql
-    ```
-
