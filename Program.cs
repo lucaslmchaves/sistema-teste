@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using sistema_teste_dev_gregpay.Data;
-using sistema_teste_dev_gregpay.Models;
-using Swashbuckle.AspNetCore.SwaggerUI;
+using sistema_teste_dev_gregpay.Models; // Continua importando Models
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,87 +10,117 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 // --- FIM DO CÓDIGO DO BANCO ---
 
-// --- INÍCIO DA CORREÇÃO DO SWAGGER ---
-// Registra os serviços para explorar os endpoints da API
-builder.Services.AddEndpointsApiExplorer(); 
-// Registra o serviço que gera a documentação Swagger
-builder.Services.AddSwaggerGen(); 
-// --- FIM DA CORREÇÃO DO SWAGGER ---
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// --- CORREÇÃO DE CORS ---
+// Adiciona a política de CORS para permitir que o app Razor chame esta API
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowRazorApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:XXXX", "https://localhost:YYYY") // Colocaremos as portas do app Razor aqui depois
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+// --- FIM DO CORS ---
 
 var app = builder.Build();
 
-// --- INÍCIO DA CORREÇÃO DO SWAGGER ---
-// Configuração do Swagger/OpenAPI
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger(); // Gera o arquivo .json do Swagger
-    app.UseSwaggerUI(); // Gera a PÁGINA INTERATIVA (/swagger)
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
-// --- FIM DA CORREÇÃO DO SWAGGER ---
 
-// app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Mantenha comentado por enquanto
 
-// --- INÍCIO DA API DE PARTICIPANTES ---
-var group = app.MapGroup("/api/participantes").WithTags("Participantes");
+app.UseCors("AllowRazorApp"); // Ativa a política de CORS
 
-// GET: /api/participantes (Lista todos os participantes ATIVOS)
-group.MapGet("/", async (AppDbContext context) =>
+// --- INÍCIO DA API DE FUNCIONÁRIOS (REFATORADO) ---
+
+var group = app.MapGroup("/api/funcionarios").WithTags("Funcionarios");
+
+// GET: /api/funcionarios (Lista todos os funcionários ATIVOS)
+group.MapGet("/", async (AppDbContext context, string? nome, string? departamento) =>
 {
-    var participantes = await context.Participantes
-                                     .Where(p => p.Ativo) 
-                                     .ToListAsync();
-    return Results.Ok(participantes);
-})
-.WithName("GetParticipantes");
+    var query = context.Funcionarios.Include(f => f.Filhos).Where(f => f.Ativo);
 
-// GET: /api/participantes/{id} (Busca um por ID)
+    if (!string.IsNullOrEmpty(nome))
+    {
+        query = query.Where(f => f.Nome.Contains(nome)); // Regra: pesquisar por parte do nome
+    }
+    
+    if (!string.IsNullOrEmpty(departamento))
+    {
+        query = query.Where(f => f.Departamento == departamento); // Regra: pesquisar por departamento
+    }
+
+    var funcionarios = await query.OrderBy(f => f.Nome).ToListAsync(); // Regra: Ordenar pelo nome
+    return Results.Ok(funcionarios);
+})
+.WithName("GetFuncionarios");
+
+// GET: /api/funcionarios/{id} (Busca um por ID, incluindo os filhos)
 group.MapGet("/{id}", async (int id, AppDbContext context) =>
 {
-    var participante = await context.Participantes.FindAsync(id);
-    return participante != null ? Results.Ok(participante) : Results.NotFound("Participante não encontrado.");
-})
-.WithName("GetParticipantePorId");
+    var funcionario = await context.Funcionarios
+                                   .Include(f => f.Filhos) // Inclui a lista de filhos
+                                   .FirstOrDefaultAsync(f => f.Id == id);
 
-group.MapPost("/", async (Participante participante, AppDbContext context) =>
+    return funcionario != null ? Results.Ok(funcionario) : Results.NotFound("Funcionário não encontrado.");
+})
+.WithName("GetFuncionarioPorId");
+
+// POST: /api/funcionarios (Cria um novo funcionário)
+group.MapPost("/", async (Funcionario funcionario, AppDbContext context) =>
 {
-    participante.Ativo = true; // Define o participante como ativo ao criar
-
-    context.Participantes.Add(participante);
+    funcionario.Ativo = true; // Garante que seja criado como ativo
+    
+    // EF Core vai inserir o funcionário E a lista de filhos dele
+    context.Funcionarios.Add(funcionario); 
     await context.SaveChangesAsync();
-
-    return Results.CreatedAtRoute("GetParticipantePorId", new { id = participante.Id }, participante);
+    
+    return Results.CreatedAtRoute("GetFuncionarioPorId", new { id = funcionario.Id }, funcionario);
 })
-.WithName("CriarParticipante");
+.WithName("CriarFuncionario");
 
-// PUT: /api/participantes/{id} (Atualiza um participante)
-group.MapPut("/{id}", async (int id, Participante inputParticipante, AppDbContext context) =>
+// PUT: /api/funcionarios/{id} (Atualiza um funcionário)
+group.MapPut("/{id}", async (int id, Funcionario inputFuncionario, AppDbContext context) =>
 {
-    var participante = await context.Participantes.FindAsync(id);
-    if (participante == null)
-        return Results.NotFound("Participante não encontrado.");
+    var funcionario = await context.Funcionarios.FindAsync(id);
 
-    participante.Nome = inputParticipante.Nome;
-    participante.CpfCnpj = inputParticipante.CpfCnpj;
-    participante.Email = inputParticipante.Email;
+    if (funcionario == null)
+        return Results.NotFound("Funcionário não encontrado.");
+
+    // Atualiza os campos principais
+    funcionario.Nome = inputFuncionario.Nome;
+    funcionario.Cpf = inputFuncionario.Cpf;
+    funcionario.Departamento = inputFuncionario.Departamento;
+    funcionario.Salario = inputFuncionario.Salario;
+    funcionario.DataNascimento = inputFuncionario.DataNascimento;
 
     await context.SaveChangesAsync();
-    return Results.Ok(participante);
+    return Results.Ok(funcionario);
 })
-.WithName("AtualizarParticipante");
+.WithName("AtualizarFuncionario");
 
-// DELETE: /api/participantes/{id} (Desativa um participante - Soft Delete)
+// DELETE: /api/funcionarios/{id} (Desativa um funcionário - Soft Delete)
 group.MapDelete("/{id}", async (int id, AppDbContext context) =>
 {
-    var participante = await context.Participantes.FindAsync(id);
-    if (participante == null)
-        return Results.NotFound("Participante não encontrado.");
+    var funcionario = await context.Funcionarios.FindAsync(id);
 
-    participante.Ativo = false;
+    if (funcionario == null)
+        return Results.NotFound("Funcionário não encontrado.");
+
+    funcionario.Ativo = false;
     await context.SaveChangesAsync();
 
     return Results.NoContent(); 
 })
-.WithName("DesativarParticipante");
-// --- FIM DA API DE PARTICIPANTES ---
+.WithName("DesativarFuncionario");
+// --- FIM DA API DE FUNCIONÁRIOS ---
 
 app.Run();

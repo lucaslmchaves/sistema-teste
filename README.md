@@ -16,7 +16,7 @@ Este projeto foi desenvolvido com as seguintes tecnologias, alinhadas com a vaga
 ## 📋 Pré-requisitos
 
 * [.NET 9 SDK](https://dotnet.microsoft.com/pt-br/download/dotnet/9.0)
-* [SQL Server Express](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads) (ou outra instância)
+* [SQL Server Express](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads) 
 * **Ferramenta `dotnet-ef`:**
     ```bash
     dotnet tool install --global dotnet-ef
@@ -28,7 +28,7 @@ Siga os passos abaixo para rodar a aplicação localmente:
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [URL-DO-SEU-REPO-PRIVADO]
+    git clone [https://github.com/lucaslmchaves/sistema-teste-dev-gregpay.git]
     cd sistema-teste-dev-gregpay
     ```
 

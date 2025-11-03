@@ -1,28 +1,35 @@
 using Microsoft.EntityFrameworkCore;
-using sistema_teste_dev_gregpay.Models; // Puxa a classe Participante que você criou
+using sistema_teste_dev_gregpay.Models; 
 
 namespace sistema_teste_dev_gregpay.Data
 {
     public class AppDbContext : DbContext
     {
-        // Construtor que passa as opções para o DbContext
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
+        // Novos DbSets
+        public DbSet<Funcionario> Funcionarios { get; set; }
+        public DbSet<Filho> Filhos { get; set; }
 
-        // Define a tabela Participantes no banco de dados
-        public DbSet<Participante> Participantes { get; set; }
-
-        // Configurações adicionais do modelo
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Participante>(entity =>
+            // Define o valor padrão para 'Ativo' do Funcionario
+            modelBuilder.Entity<Funcionario>(entity =>
             {
-                // Define que 'Ativo' tem valor padrão true
-                entity.Property(e => e.Ativo).HasDefaultValue(true); 
+                entity.Property(e => e.Ativo).HasDefaultValue(true);
                 
-                // Define que 'DataCriacao' tem valor padrão a data atual
-                entity.Property(e => e.DataCriacao).HasDefaultValueSql("GETDATE()"); 
+                // Configura a precisão do Salário
+                entity.Property(e => e.Salario).HasColumnType("decimal(10, 2)");
+            });
+
+            // Configura o relacionamento entre Funcionario e Filho
+            modelBuilder.Entity<Filho>(entity =>
+            {
+                entity.HasOne(d => d.Funcionario)
+                      .WithMany(p => p.Filhos)
+                      .HasForeignKey(d => d.FuncionarioId)
+                      .OnDelete(DeleteBehavior.Cascade); // Se deletar o pai, deleta os filhos
             });
         }
     }

@@ -22,4 +22,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
   </ItemGroup>
 
-</Project>
+  <ItemGroup>
+    <Compile Remove="GregPay.WebApp\**" />
+    <Content Remove="GregPay.WebApp\**" />
+    <EmbeddedResource Remove="GregPay.WebApp\**" />
+    <None Remove="GregPay.WebApp\**" />
+  </ItemGroup>
+  </Project>
