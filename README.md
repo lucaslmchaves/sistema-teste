@@ -1,6 +1,3 @@
-Com certeza. Aqui está o código Markdown completo, pronto para você copiar e colar diretamente no seu arquivo `README.md` (o que está na pasta raiz `SISTEMA-TESTE-DEV-GREGPAY`).
-
-````markdown
 # Desafio de Avaliação DEV - GregPay (Sistema de Funcionários)
 
 Projeto de avaliação para a equipe de desenvolvimento, focado na criação de um sistema CRUD (Criar, Ler, Atualizar, Deletar) para gerenciamento de Funcionários.
@@ -106,4 +103,3 @@ Conforme a especificação:
     dotnet ef migrations script -i -o ../database/script_criacao.sql
     ```
 
-<!-- end list -->
