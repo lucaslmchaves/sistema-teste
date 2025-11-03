@@ -105,7 +105,5 @@ Conforme a especificação:
     # Rode este comando de dentro da pasta /backend
     dotnet ef migrations script -i -o ../database/script_criacao.sql
     ```
-2.  **Salvar no Google Drive:** Salve todos os arquivos do projeto (incluindo o `script_criacao.sql` gerado) em uma pasta no Google Drive.
-3.  **Enviar por E-mail:** Envie o link do Google Drive para `rh@gregpay.com.br`.
 
 <!-- end list -->
