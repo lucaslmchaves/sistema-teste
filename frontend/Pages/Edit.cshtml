@@ -1,0 +1,188 @@
+@page "{id:int}"
+@model GregPay.WebApp.Pages.EditModel
+@{
+    ViewData["Title"] = "Editar Funcionário";
+}
+
+<!-- (Estilos CSS... permanecem os mesmos) -->
+<style>
+    .form-section {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        max-width: 800px; 
+    }
+    .form-group {
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+    }
+    .form-control {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 100%;
+    }
+    .btn {
+        padding: 10px 15px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        margin-right: 5px; 
+    }
+    .btn-primary { background-color: #0d6efd; color: white; }
+    .btn-secondary { background-color: #6c757d; color: white; }
+    .btn-danger { background-color: #dc3545; color: white; }
+    
+    .btn-sm { padding: 5px 10px; font-size: 0.8em; }
+    .btn-warning { background-color: #ffc107; color: #000; }
+
+    .table-filhos {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    .table-filhos th, .table-filhos td {
+        border: 1px solid #dee2e6;
+        padding: 8px;
+        text-align: left;
+    }
+    .table-filhos th { background-color: #e9ecef; }
+    
+    /* Classes de máscara */
+    .cpf-mask { }
+    .salario-mask { }
+</style>
+
+<h3>Editar Funcionário</h3>
+
+<!-- 1. FORMULÁRIO PRINCIPAL (EDITAR FUNCIONÁRIO) -->
+<div class="form-section">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    
+    <form method="post">
+        <input type="hidden" asp-for="Funcionario.Id" />
+        
+        <div class="form-group">
+            <label asp-for="Funcionario.Nome"></label>
+            <input asp-for="Funcionario.Nome" class="form-control" />
+            <span asp-validation-for="Funcionario.Nome" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Funcionario.Cpf"></label>
+            <input asp-for="Funcionario.Cpf" class="form-control cpf-mask" />
+            <span asp-validation-for="Funcionario.Cpf" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Funcionario.Departamento"></label>
+            <input asp-for="Funcionario.Departamento" class="form-control" />
+            <span asp-validation-for="Funcionario.Departamento" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Funcionario.Salario"></label>
+            <input asp-for="Funcionario.Salario" type="text" class="form-control salario-mask" />
+            <span asp-validation-for="Funcionario.Salario" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Funcionario.DataNascimento"></label>
+            <input asp-for="Funcionario.DataNascimento" type="date" class="form-control" />
+            <span asp-validation-for="Funcionario.DataNascimento" class="text-danger"></span>
+        </div>
+
+        <hr />
+        
+        <div>
+            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            <a asp-page="./Index" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+
+<!-- 2. SEÇÃO DE FILHOS -->
+<div class="form-section">
+    <h4>Lista de Filhos</h4>
+    
+    <table class="table-filhos">
+        <thead>
+            <tr>
+                <th>Nome filho</th>
+                <th>CPF filho</th>
+                <th>Data Nascimento</th>
+                <th>Idade (Anos)</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Funcionario.Filhos != null && Model.Funcionario.Filhos.Any())
+            {
+                foreach (var filho in Model.Funcionario.Filhos)
+                {
+                    // Regra de negócio: Calcular idade
+                    var idade = DateTime.Today.Year - filho.DataNascimento.Year;
+                    if (filho.DataNascimento.Date > DateTime.Today.AddYears(-idade)) 
+                    {
+                        idade--;
+                    }
+                    
+                    <tr>
+                        <td>@filho.Nome</td>
+                        <td>@filho.Cpf</td>
+                        <td>@filho.DataNascimento.ToString("dd/MM/yyyy")</td>
+                        <td>@idade</td>
+                        <td>
+                            <!-- --- LINK DE EDIÇÃO ADICIONADO --- -->
+                            <a asp-page="./EditFilho" asp-route-filhoId="@filho.Id" class="btn btn-warning btn-sm">Editar</a>
+
+                            <!-- Formulário para Excluir Filho -->
+                            <form method="post" asp-page-handler="DeleteFilho" style="display:inline;">
+                                <input type="hidden" name="filhoId" value="@filho.Id" />
+                                <input type="hidden" name="funcionarioId" value="@Model.Funcionario.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5">Nenhum filho cadastrado.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <hr />
+
+    <!-- 3. FORMULÁRIO "NOVO FILHO" -->
+    <h5>Adicionar Novo Filho</h5>
+    <form method="post" asp-page-handler="AddFilho">
+        <input type="hidden" asp-for="NovoFilho.FuncionarioId" /> 
+
+        <div class="form-group">
+            <label asp-for="NovoFilho.Nome"></label>
+            <input asp-for="NovoFilho.Nome" class="form-control" />
+            <span asp-validation-for="NovoFilho.Nome" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NovoFilho.Cpf"></label>
+            <input asp-for="NovoFilho.Cpf" class="form-control cpf-mask" />
+            <span asp-validation-for="NovoFilho.Cpf" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NovoFilho.DataNascimento"></label>
+            <input asp-for="NovoFilho.DataNascimento" type="date" class="form-control" />
+            <span asp-validation-for="NovoFilho.DataNascimento" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Adicionar Filho</button>
+    </form>
+</div>
+

@@ -1,0 +1,82 @@
+@page
+@model GregPay.WebApp.Pages.CreateModel
+@{
+    ViewData["Title"] = "Novo Funcionário";
+}
+
+<!-- Reutiliza o CSS da página Index -->
+<style>
+    .form-section {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        max-width: 600px; /* Limita a largura do formulário */
+    }
+    .form-group {
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+    }
+    .form-control {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 100%;
+    }
+    .btn {
+        padding: 10px 15px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    .btn-primary { background-color: #0d6efd; color: white; }
+    .btn-secondary { background-color: #6c757d; color: white; }
+</style>
+
+<h3>Novo Funcionário</h3>
+
+<div class="form-section">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    
+    <form method="post">
+        <div class="form-group">
+            <label asp-for="Funcionario.Nome">Nome</label>
+            <input asp-for="Funcionario.Nome" class="form-control" />
+            <span asp-validation-for="Funcionario.Nome" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Funcionario.Cpf">CPF</label>
+            <!-- ⬇️ MÁSCARA ADICIONADA ⬇️ -->
+            <input asp-for="Funcionario.Cpf" class="form-control cpf-mask" placeholder="000.000.000-00" />
+            <span asp-validation-for="Funcionario.Cpf" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Funcionario.Departamento">Departamento</label>
+            <input asp-for="Funcionario.Departamento" class="form-control" />
+            <span asp-validation-for="Funcionario.Departamento" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Funcionario.Salario">Salário</label>
+            <input asp-for="Funcionario.Salario" type="text" class="form-control salario-mask" placeholder="R$ 0,00" />
+            <span asp-validation-for="Funcionario.Salario" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Funcionario.DataNascimento">Data de Nascimento</label>
+            <input asp-for="Funcionario.DataNascimento" type="date" class="form-control" />
+            <span asp-validation-for="Funcionario.DataNascimento" class="text-danger"></span>
+        </div>
+
+        <hr />
+        
+        <div>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a asp-page="./Index" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>

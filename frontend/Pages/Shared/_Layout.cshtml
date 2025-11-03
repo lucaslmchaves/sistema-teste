@@ -1,16 +1,20 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - GregPay.WebApp</title>
-    <script type="importmap"></script>
+    
+    <!-- ============================================== -->
+    <!-- ⬇️ LINKS DE CSS (O QUE ESTAVA EM FALTA) ⬇️ -->
+    <!-- ============================================== -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/GregPay.WebApp.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
+        <!-- A Barra de Navegação que desapareceu -->
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">GregPay.WebApp</a>
@@ -18,35 +22,62 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
             </div>
         </nav>
     </header>
+    
+    <!-- O container que centra o seu conteúdo -->
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
+    <!-- O rodapé estilizado -->
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2025 - GregPay.WebApp - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            &copy; 2025 - GregPay.WebApp
         </div>
     </footer>
 
+    <!-- Scripts (Bootstrap, etc.) -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
+    <script src="https://unpkg.com/imask"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            
+            // Máscara de CPF (xxx.xxx.xxx-xx)
+            document.querySelectorAll('.cpf-mask').forEach(input => {
+                if (input) {
+                    IMask(input, { mask: '000.000.000-00' });
+                }
+            });
+
+            // Máscara de Salário (R$ xxx.xxx,xx)
+            document.querySelectorAll('.salario-mask').forEach(input => {
+                if (input) {
+                    IMask(input, {
+                        mask: 'R$ num',
+                        blocks: {
+                            num: {
+                                mask: Number,
+                                scale: 2,
+                                thousandsSeparator: '.',
+                                padFractionalZeros: true,
+                                radix: ',',
+                                mapToRadix: ['.']
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+

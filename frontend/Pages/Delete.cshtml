@@ -1,0 +1,52 @@
+@page "{id:int}"
+@model GregPay.WebApp.Pages.DeleteModel
+@{
+    ViewData["Title"] = "Excluir Funcionário";
+}
+
+<!-- Reutiliza o CSS (criar global.css masi tarde) -->
+<style>
+    .confirm-section {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        max-width: 600px;
+        background-color: #f8f9fa;
+    }
+    .confirm-details {
+        margin: 20px 0;
+    }
+    .btn {
+        padding: 10px 15px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        margin-right: 10px;
+    }
+    .btn-danger { background-color: #dc3545; color: white; }
+    .btn-secondary { background-color: #6c757d; color: white; }
+</style>
+
+<h3>Excluir Funcionário</h3>
+
+<div class="confirm-section">
+    <h4>Deseja excluir o funcionário abaixo?</h4>
+    
+    <div class="confirm-details">
+        <strong>Nome:</strong>
+        <p>@Model.Funcionario.Nome</p>
+        
+        <strong>CPF:</strong>
+        <p>@Model.Funcionario.Cpf</p>
+    </div>
+    
+    <form method="post">
+        <!-- Campo oculto para guardar o ID do funcionário -->
+        <input type="hidden" asp-for="Funcionario.Id" />
+        
+        <button type="submit" class="btn btn-danger">Excluir</button>
+        <a asp-page="./Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>

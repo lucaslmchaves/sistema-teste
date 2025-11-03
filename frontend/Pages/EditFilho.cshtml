@@ -1,0 +1,78 @@
+@page "{filhoId:int}"
+@model GregPay.WebApp.Pages.EditFilhoModel
+@{
+    ViewData["Title"] = "Editar Filho";
+}
+
+<!-- Reutiliza o CSS (pode ser movido para um .css global mais tarde) -->
+<style>
+    .form-section {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        max-width: 600px;
+    }
+    .form-group {
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+    }
+    .form-control {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 100%;
+    }
+    .btn {
+        padding: 10px 15px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    .btn-primary { background-color: #0d6efd; color: white; }
+    .btn-secondary { background-color: #6c757d; color: white; }
+    
+    /* Adiciona a classe da máscara de CPF */
+    .cpf-mask { } 
+</style>
+
+<h3>Editar Filho</h3>
+
+<div class="form-section">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    
+    <form method="post">
+        <!-- Campos ocultos para os IDs -->
+        <input type="hidden" asp-for="Filho.Id" />
+        <input type="hidden" asp-for="Filho.FuncionarioId" />
+        
+        <div class="form-group">
+            <label asp-for="Filho.Nome"></label>
+            <input asp-for="Filho.Nome" class="form-control" />
+            <span asp-validation-for="Filho.Nome" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Filho.Cpf"></label>
+            <input asp-for="Filho.Cpf" class="form-control cpf-mask" />
+            <span asp-validation-for="Filho.Cpf" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Filho.DataNascimento"></label>
+            <input asp-for="Filho.DataNascimento" type="date" class="form-control" />
+            <span asp-validation-for="Filho.DataNascimento" class="text-danger"></span>
+        </div>
+
+        <hr />
+        
+        <div>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <!-- O botão Cancelar usa o ID do pai (FuncionarioId) para voltar -->
+            <a asp-page="./Edit" asp-route-id="@Model.FuncionarioId" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+

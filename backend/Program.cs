@@ -14,12 +14,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // --- CORREÇÃO DE CORS ---
-// A sua configuração de CORS já está correta, permitindo o http://localhost:5027
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowRazorApp",
         policy =>
         {
+            // Substitua pelas portas HTTP e HTTPS do seu frontend (ex: 5027 e 7027)
             policy.WithOrigins("http://localhost:5027", "https://localhost:7027") 
                   .AllowAnyHeader()
                   .AllowAnyMethod();
@@ -35,61 +35,42 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// --- CORREÇÃO HTTP ---
-// Desativamos o redirecionamento HTTPS para simplificar a comunicação local.
-// app.UseHttpsRedirection();
-// --- FIM DA CORREÇÃO ---
+// Descomentado para HTTP (mais fácil para testes locais)
+// app.UseHttpsRedirection(); 
 
-app.UseCors("AllowRazorApp"); 
+app.UseCors("AllowRazorApp"); // Ativa a política de CORS
 
-// --- INÍCIO DA API DE FUNCIONÁRIOS (COMPLETA) ---
-
+// --- INÍCIO DA API DE FUNCIONÁRIOS ---
 var group = app.MapGroup("/api/funcionarios").WithTags("Funcionarios");
 
-// GET: /api/funcionarios
+// ... (Todos os endpoints de Funcionários - GET, POST, PUT, DELETE - permanecem iguais) ...
 group.MapGet("/", async (AppDbContext context, string? nome, string? departamento) =>
 {
     var query = context.Funcionarios.Include(f => f.Filhos).Where(f => f.Ativo);
-    if (!string.IsNullOrEmpty(nome))
-    {
-        query = query.Where(f => f.Nome.Contains(nome));
-    }
-    if (!string.IsNullOrEmpty(departamento))
-    {
-        query = query.Where(f => f.Departamento == departamento);
-    }
+    if (!string.IsNullOrEmpty(nome)) { query = query.Where(f => f.Nome.Contains(nome)); }
+    if (!string.IsNullOrEmpty(departamento)) { query = query.Where(f => f.Departamento == departamento); }
     var funcionarios = await query.OrderBy(f => f.Nome).ToListAsync();
     return Results.Ok(funcionarios);
-})
-.WithName("GetFuncionarios");
+}).WithName("GetFuncionarios");
 
-// GET: /api/funcionarios/{id}
 group.MapGet("/{id}", async (int id, AppDbContext context) =>
 {
-    var funcionario = await context.Funcionarios
-                                   .Include(f => f.Filhos)
-                                   .FirstOrDefaultAsync(f => f.Id == id);
+    var funcionario = await context.Funcionarios.Include(f => f.Filhos).FirstOrDefaultAsync(f => f.Id == id);
     return funcionario != null ? Results.Ok(funcionario) : Results.NotFound("Funcionário não encontrado.");
-})
-.WithName("GetFuncionarioPorId");
+}).WithName("GetFuncionarioPorId");
 
-// POST: /api/funcionarios
 group.MapPost("/", async (Funcionario funcionario, AppDbContext context) =>
 {
-    funcionario.Ativo = true; 
+    funcionario.Ativo = true;
     context.Funcionarios.Add(funcionario); 
     await context.SaveChangesAsync();
     return Results.CreatedAtRoute("GetFuncionarioPorId", new { id = funcionario.Id }, funcionario);
-})
-.WithName("CriarFuncionario");
+}).WithName("CriarFuncionario");
 
-// PUT: /api/funcionarios/{id}
 group.MapPut("/{id}", async (int id, Funcionario inputFuncionario, AppDbContext context) =>
 {
     var funcionario = await context.Funcionarios.FindAsync(id);
-    if (funcionario == null)
-        return Results.NotFound("Funcionário não encontrado.");
-
+    if (funcionario == null) return Results.NotFound("Funcionário não encontrado.");
     funcionario.Nome = inputFuncionario.Nome;
     funcionario.Cpf = inputFuncionario.Cpf;
     funcionario.Departamento = inputFuncionario.Departamento;
@@ -97,65 +78,65 @@ group.MapPut("/{id}", async (int id, Funcionario inputFuncionario, AppDbContext 
     funcionario.DataNascimento = inputFuncionario.DataNascimento;
     await context.SaveChangesAsync();
     return Results.Ok(funcionario);
-})
-.WithName("AtualizarFuncionario");
+}).WithName("AtualizarFuncionario");
 
-// DELETE: /api/funcionarios/{id}
 group.MapDelete("/{id}", async (int id, AppDbContext context) =>
 {
     var funcionario = await context.Funcionarios.FindAsync(id);
-    if (funcionario == null)
-        return Results.NotFound("Funcionário não encontrado.");
+    if (funcionario == null) return Results.NotFound("Funcionário não encontrado.");
     funcionario.Ativo = false;
     await context.SaveChangesAsync();
     return Results.NoContent(); 
-})
-.WithName("DesativarFuncionario");
-
-// --- ENDPOINTS DE FILHOS ---
+}).WithName("DesativarFuncionario");
 
 // POST: /api/funcionarios/{id}/filhos
 group.MapPost("/{id}/filhos", async (int id, Filho filho, AppDbContext context) =>
 {
     var funcionario = await context.Funcionarios.FindAsync(id);
-    if (funcionario == null)
-        return Results.NotFound("Funcionário não encontrado.");
+    if (funcionario == null) return Results.NotFound("Funcionário não encontrado.");
     filho.FuncionarioId = id;
     context.Filhos.Add(filho);
     await context.SaveChangesAsync();
     return Results.Created($"/api/filhos/{filho.Id}", filho);
-})
-.WithName("AdicionarFilho");
+}).WithName("AdicionarFilho");
+// --- FIM DA API DE FUNCIONÁRIOS ---
 
-// Agrupa endpoints específicos de /api/filhos
+
+// --- INÍCIO DA API DE FILHOS ---
 var filhosGroup = app.MapGroup("/api/filhos").WithTags("Filhos");
 
-// PUT: /api/filhos/{filhoId}
+// --- NOVO ENDPOINT ADICIONADO ---
+// GET: /api/filhos/{filhoId} (Busca um filho específico)
+filhosGroup.MapGet("/{filhoId}", async (int filhoId, AppDbContext context) =>
+{
+    var filho = await context.Filhos.FindAsync(filhoId);
+    return filho != null ? Results.Ok(filho) : Results.NotFound("Filho não encontrado.");
+})
+.WithName("GetFilhoPorId");
+// --- FIM DO NOVO ENDPOINT ---
+
+// PUT: /api/filhos/{filhoId} (Atualiza um filho existente)
 filhosGroup.MapPut("/{filhoId}", async (int filhoId, Filho inputFilho, AppDbContext context) =>
 {
     var filho = await context.Filhos.FindAsync(filhoId);
-    if (filho == null)
-        return Results.NotFound("Filho não encontrado.");
+    if (filho == null) return Results.NotFound("Filho não encontrado.");
     filho.Nome = inputFilho.Nome;
     filho.Cpf = inputFilho.Cpf;
     filho.DataNascimento = inputFilho.DataNascimento;
     await context.SaveChangesAsync();
     return Results.Ok(filho);
-})
-.WithName("AtualizarFilho");
+}).WithName("AtualizarFilho");
 
-// DELETE: /api/filhos/{filhoId}
+// DELETE: /api/filhos/{filhoId} (Exclui um filho)
 filhosGroup.MapDelete("/{filhoId}", async (int filhoId, AppDbContext context) =>
 {
     var filho = await context.Filhos.FindAsync(filhoId);
-    if (filho == null)
-        return Results.NotFound("Filho não encontrado.");
+    if (filho == null) return Results.NotFound("Filho não encontrado.");
     context.Filhos.Remove(filho);
     await context.SaveChangesAsync();
     return Results.NoContent();
-})
-.WithName("ExcluirFilho");
-
-// --- FIM DA API ---
+}).WithName("ExcluirFilho");
+// --- FIM DA API DE FILHOS ---
 
 app.Run();
+

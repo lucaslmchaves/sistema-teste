@@ -1,24 +1,25 @@
 ﻿@page
 @model GregPay.WebApp.Pages.IndexModel
 @{
-    ViewData["Title"] = "Sistema de Teste";
+    ViewData["Title"] = "Lista de Funcionários";
 }
 
-<!-- Adiciona um pouco de CSS para se parecer com o esboço -->
+<!-- Estilos para o layout do PDF -->
 <style>
-    .filter-section, .table-section {
+    .page-container {
+        max-width: 1000px;
+        margin: auto;
+    }
+    .filter-section {
+        display: flex;
+        gap: 15px;
+        align-items: flex-end;
+        padding: 15px;
         border: 1px solid #ccc;
-        padding: 20px;
         border-radius: 8px;
         margin-bottom: 20px;
     }
-    .filter-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr 1fr;
-        gap: 15px;
-        align-items: flex-end;
-    }
-    .form-group {
+    .filter-group {
         display: flex;
         flex-direction: column;
     }
@@ -27,6 +28,26 @@
         border: 1px solid #ccc;
         border-radius: 4px;
     }
+    .table-main {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    .table-main th, .table-main td {
+        border: 1px solid #dee2e6;
+        padding: 12px;
+        text-align: left;
+        vertical-align: middle;
+    }
+    .table-main th {
+        background-color: #343a40;
+        color: white;
+    }
+    .table-main tr:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+
+    /* --- ESTILOS DOS BOTÕES --- */
     .btn {
         padding: 10px 15px;
         border-radius: 4px;
@@ -34,38 +55,43 @@
         cursor: pointer;
         text-decoration: none;
         display: inline-block;
-        text-align: center;
+        font-size: 1rem;
+        margin-right: 5px;
     }
     .btn-primary { background-color: #0d6efd; color: white; }
-    .btn-secondary { background-color: #6c757d; color: white; }
-    .btn-sm { padding: 5px 10px; font-size: 0.875rem; }
+    
+    /* Botões pequenos para a tabela */
+    .btn-sm { 
+        padding: 5px 10px; 
+        font-size: 0.8em; 
+        text-decoration: none;
+    }
+    .btn-warning { background-color: #ffc107; color: #000; }
     .btn-danger { background-color: #dc3545; color: white; }
+    /* --- FIM DOS ESTILOS --- */
 </style>
 
-<h3>Sistema de Teste</h3>
+<div class="page-container">
+    <h3>Sistema de Teste</h3>
 
-<!-- Seção de Filtros (conforme PDF) -->
-<div class="filter-section">
-    <form method="get">
-        <div class="filter-grid">
-            <div class="form-group">
-                <label asp-for="FiltroNome">Nome:</label>
-                <input asp-for="FiltroNome" class="form-control" />
+    <!-- O formulário de filtro -->
+    <div class="filter-section">
+        <form method="get" class="d-flex" style="width:100%; display:flex; gap: 15px; align-items: flex-end;">
+            <div class="filter-group">
+                <label asp-for="Nome">Nome:</label>
+                <input asp-for="Nome" class="form-control" />
             </div>
-            <div class="form-group">
-                <label asp-for="FiltroDepartamento">Departamento:</label>
-                <!-- O PDF mostra um dropdown, mas um input é mais simples para o filtro da API -->
-                <input asp-for="FiltroDepartamento" class="form-control" />
+            <div class="filter-group">
+                <label asp-for="Departamento">Departamento:</label>
+                <input asp-for="Departamento" class="form-control" />
             </div>
             <button type="submit" class="btn btn-primary">Pesquisar</button>
-        </div>
-    </form>
-</div>
+        </form>
+    </div>
 
-<!-- Seção da Tabela (conforme PDF) -->
-<div class="table-section">
-    <table class="table table-striped table-bordered">
-        <thead class="table-dark">
+    <!-- A tabela de funcionários -->
+    <table class="table-main">
+        <thead>
             <tr>
                 <th>Nome</th>
                 <th>Departamento</th>
@@ -76,30 +102,33 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var func in Model.Funcionarios)
+            @if (Model.Funcionarios != null && Model.Funcionarios.Any())
             {
-                <tr>
-                    <td>@func.Nome</td>
-                    <td>@func.Departamento</td>
-                    <td>@func.Salario.ToString("C")</td>
-                    <td>@func.DataNascimento.ToString("dd/MM/yyyy")</td>
-                    <td>@func.Filhos.Count</td>
-                    <td>
-                        <a asp-page="/Edit" asp-route-id="@func.Id" class="btn btn-sm btn-secondary">editar</a>
-                        <a asp-page="/Delete" asp-route-id="@func.Id" class="btn btn-sm btn-danger">excluir</a>
-                    </td>
-                </tr>
+                foreach (var func in Model.Funcionarios)
+                {
+                    <tr>
+                        <td>@func.Nome</td>
+                        <td>@func.Departamento</td>
+                        <td>@func.Salario.ToString("C")</td>
+                        <td>@func.DataNascimento.ToString("dd/MM/yyyy")</td>
+                        <td>@func.Filhos.Count</td>
+                        <td>
+                            <!-- ⬇️ CORREÇÃO DOS BOTÕES AQUI ⬇️ -->
+                            <a asp-page="./Edit" asp-route-id="@func.Id" class="btn btn-warning btn-sm">Editar</a>
+                            <a asp-page="./Delete" asp-route-id="@func.Id" class="btn btn-danger btn-sm">Excluir</a>
+                        </td>
+                    </tr>
+                }
             }
-            @if (!Model.Funcionarios.Any())
+            else
             {
                 <tr>
-                    <td colspan="6" class="text-center">Nenhum funcionário encontrado.</td>
+                    <td colspan="6" style="text-align:center;">Nenhum funcionário encontrado.</td>
                 </tr>
             }
         </tbody>
     </table>
 
-    <hr />
-    <!-- Botão "Novo funcionário" (conforme PDF) -->
-    <a asp-page="/Create" class="btn btn-primary">Novo funcionário</a>
+    <a asp-page="./Create" class="btn btn-primary">Novo funcionário</a>
 </div>
+
