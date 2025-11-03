@@ -8,7 +8,7 @@ namespace sistema_teste_dev_gregpay.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
-        // Novos DbSets
+        
         public DbSet<Funcionario> Funcionarios { get; set; }
         public DbSet<Filho> Filhos { get; set; }
 

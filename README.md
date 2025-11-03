@@ -1,22 +1,27 @@
-# Desafio de Avaliação DEV - GregPay
+Com certeza. Aqui está o código Markdown completo, pronto para você copiar e colar diretamente no seu arquivo `README.md` (o que está na pasta raiz `SISTEMA-TESTE-DEV-GREGPAY`).
 
-Projeto de avaliação para a equipe de desenvolvimento, focado na criação de uma API REST simples para **gerenciamento de Participantes** de um split de pagamento.
+````markdown
+# Desafio de Avaliação DEV - GregPay (Sistema de Funcionários)
+
+Projeto de avaliação para a equipe de desenvolvimento, focado na criação de um sistema CRUD (Criar, Ler, Atualizar, Deletar) para gerenciamento de Funcionários.
+
+O sistema é construído em uma arquitetura de dois projetos:
+* `/backend`: Uma API REST em .NET 9 para gerenciar os dados.
+* `/frontend`: Um aplicativo Web Razor para a interface do usuário.
 
 ## 🚀 Tecnologias Utilizadas
 
-Este projeto foi desenvolvido com as seguintes tecnologias, alinhadas com a vaga de Estágio DEV:
-
 * **.NET 9**
-* **C#** (usando Minimal APIs)
+* **C#** (Minimal APIs e Razor Pages)
 * **API REST**
 * **Entity Framework Core**
 * **SQL Server**
-* **Swagger (Swashbuckle)** para documentação e teste
+* **Swagger (Swashbuckle)**
 
 ## 📋 Pré-requisitos
 
 * [.NET 9 SDK](https://dotnet.microsoft.com/pt-br/download/dotnet/9.0)
-* [SQL Server Express](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads) 
+* [SQL Server Express](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads) (ou outra instância)
 * **Ferramenta `dotnet-ef`:**
     ```bash
     dotnet tool install --global dotnet-ef
@@ -24,45 +29,86 @@ Este projeto foi desenvolvido com as seguintes tecnologias, alinhadas com a vaga
 
 ## ⚙️ Como Executar o Projeto
 
-Siga os passos abaixo para rodar a aplicação localmente:
+A solução está dividida em dois projetos (`backend` e `frontend`) e precisa que **ambos** sejam executados simultaneamente.
 
-1.  **Clone o repositório:**
+**Nota:** Para simplificar o desenvolvimento local, ambos os projetos estão configurados para rodar em **HTTP** (não-seguro).
+
+### 1. Configurar o Banco de Dados
+
+1.  Abra o arquivo `backend/appsettings.json`.
+2.  Localize a `ConnectionStrings` e atualize o valor `Server` pelo nome da sua instância do SQL Server (ex: `Server=localhost\\SQLEXPRESS`).
+3.  No terminal, na pasta raiz do projeto, navegue até o backend:
     ```bash
-    git clone [https://github.com/lucaslmchaves/sistema-teste-dev-gregpay.git]
-    cd sistema-teste-dev-gregpay
+    cd backend
     ```
-
-2.  **Configure a Conexão com o Banco (appsettings.json):**
-    * Abra o arquivo `appsettings.json`.
-    * Localize a `ConnectionStrings` e substitua o valor `Server` pelo nome da sua instância do SQL Server.
-    * **Importante:** Se sua instância for nomeada (ex: `SQLEXPRESS`), use barras duplas para "escapar" o caractere: `Server=NOME_DO_PC\\SQLEXPRESS`
-
-3.  **Aplique as Migrations (Entity Framework):**
-    * Rode o comando abaixo no terminal para criar o banco de dados (`GregPayTesteDB`) e a tabela (`Participantes`).
+4.  Rode o comando para criar o banco de dados (`GregPayTesteDB`) e as tabelas:
     ```bash
     dotnet ef database update
     ```
-
-4.  **Execute a Aplicação:**
+5.  Volte para a pasta raiz:
     ```bash
-    dotnet run
+    cd ..
     ```
 
-5.  **Acesse a API:**
-    * A aplicação estará disponível em `http://localhost:5270`.
-    * Acesse **`http://localhost:5270/swagger`** para ver a documentação e testar os endpoints.
+### 2. Executar a Solução (2 Terminais)
+
+Você precisará de **dois terminais** abertos, ambos na pasta raiz (`SISTEMA-TESTE-DEV-GREGPAY`).
+
+**Terminal 1 (Backend - API):**
+```bash
+# Na pasta raiz do projeto
+cd backend
+dotnet run
+````
+
+*A API estará rodando (ex: `http://localhost:5270`)*
+
+**Terminal 2 (Frontend - WebApp):**
+
+```bash
+# Na pasta raiz do projeto (em um NOVO terminal)
+cd frontend
+dotnet run
+```
+
+*O site estará rodando (ex: `http://localhost:5027`)*
+
+### 3\. Acessar o Sistema
+
+  * **Site (Frontend):** Abra a URL do Terminal 2 (ex: `http://localhost:5027`).
+  * **Documentação da API (Backend):** Abra a URL da API (do Terminal 1) e adicione `/swagger` (ex: `http://localhost:5270/swagger`).
 
 ## 📝 Endpoints da API
 
-A API gerencia um CRUD de **Participantes**:
+A API gerencia um CRUD de **Funcionários** e seus **Filhos**:
 
-* `GET /api/participantes`
-    * Lista todos os participantes que estão **ativos**.
-* `GET /api/participantes/{id}`
-    * Obtém um participante específico pelo seu ID.
-* `POST /api/participantes`
-    * Cria um novo participante (definido como `ativo = true` por padrão).
-* `PUT /api/participantes/{id}`
-    * Atualiza as informações de um participante existente.
-* `DELETE /api/participantes/{id}`
-    * Desativa um participante (utiliza **Soft Delete**, definindo `ativo = false`).
+#### Funcionários
+
+  * `GET /api/funcionarios`: Lista todos os funcionários (permite filtros por `nome` e `departamento`).
+  * `GET /api/funcionarios/{id}`: Obtém um funcionário e seus filhos.
+  * `POST /api/funcionarios`: Cria um novo funcionário.
+  * `PUT /api/funcionarios/{id}`: Atualiza os dados de um funcionário.
+  * `DELETE /api/funcionarios/{id}`: Desativa um funcionário (Soft Delete).
+
+#### Filhos
+
+  * `POST /api/funcionarios/{id}/filhos`: Adiciona um novo filho a um funcionário.
+  * `PUT /api/filhos/{filhoId}`: Atualiza um filho existente.
+  * `DELETE /api/filhos/{filhoId}`: Exclui um filho.
+
+## 📬 Instruções de Envio do Teste
+
+Conforme a especificação:
+
+1.  **Script do Banco:** Gere o script de criação do banco e salve-o na pasta `/database/` (a pasta está vazia por padrão).
+    ```bash
+    # Rode este comando de dentro da pasta /backend
+    dotnet ef migrations script -i -o ../database/script_criacao.sql
+    ```
+2.  **Salvar no Google Drive:** Salve todos os arquivos do projeto (incluindo o `script_criacao.sql` gerado) em uma pasta no Google Drive.
+3.  **Enviar por E-mail:** Envie o link do Google Drive para `rh@gregpay.com.br`.
+
+<!-- end list -->
+
+```
+```

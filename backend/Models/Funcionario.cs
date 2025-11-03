@@ -12,7 +12,7 @@ namespace sistema_teste_dev_gregpay.Models
         public DateTime DataNascimento { get; set; }
         public bool Ativo { get; set; }
 
-        // Propriedade de navegação: Um funcionário pode ter muitos filhos
+        // Propriedade: Um funcionário pode ter muitos filhos
         public required ICollection<Filho> Filhos { get; set; }
     }
 }
