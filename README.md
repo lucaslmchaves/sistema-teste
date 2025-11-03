@@ -109,6 +109,3 @@ Conforme a especificação:
 3.  **Enviar por E-mail:** Envie o link do Google Drive para `rh@gregpay.com.br`.
 
 <!-- end list -->
-
-```
-```
