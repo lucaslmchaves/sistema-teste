@@ -1,4 +1,4 @@
-# Desafio de Avaliação DEV - GregPay (Sistema de Funcionários)
+# Desafio de Avaliação DEV - (Sistema de Funcionários)
 
 Projeto de avaliação para a equipe de desenvolvimento, focado na criação de um sistema CRUD (Criar, Ler, Atualizar, Deletar) para gerenciamento de Funcionários.
 
